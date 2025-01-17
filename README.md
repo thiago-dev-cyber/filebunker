@@ -1,6 +1,6 @@
 <h1 align="center">File Bunker</h1> 
 
-[Portuguese version](README.md)
+[Versão em Português](https://github.com/thiago-dev-cyber/filebunker/blob/dev/README.pt-br.md)
 
 <p align="center">
   <img src="http://img.shields.io/static/v1?label=python&message=3.11.2&color=blue&style=for-the-badge&logo=python"/>
