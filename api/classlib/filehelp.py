@@ -14,7 +14,6 @@ class FileHelp:
 
     @staticmethod
     def cksum(path):
-        print(path)
         """
         Computes the MD5 checksum of the given file.
 

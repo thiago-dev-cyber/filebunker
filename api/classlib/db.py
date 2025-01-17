@@ -22,9 +22,7 @@ class DataBase:
 
         Args:
             json_file (dict): Extracted json information.
-
             salt (bytes): The salt password.
-
             iv (bytes): The vector of inicialization. 
 
         Returns:
