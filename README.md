@@ -1,37 +1,39 @@
 <h1 align="center">File Bunker</h1> 
 
+[Portuguese version](README.md)
+
 <p align="center">
   <img src="http://img.shields.io/static/v1?label=python&message=3.11.2&color=blue&style=for-the-badge&logo=python"/>
-  <img src="http://img.shields.io/static/v1?label=STATUS&message=EM%20DESENVOLVIMENTO&color=RED&style=for-the-badge"/>
+  <img src="http://img.shields.io/static/v1?label=STATUS&message=IN%20DEVELOPMENT&color=RED&style=for-the-badge"/>
   <img src="http://img.shields.io/static/v1?label=License&message=MIT&color=green&style=for-the-badge"/>
 </p>
 
-> Status do Projeto: :heavy_check_mark: :warning: (em desenvolvimento)
+> Project Status: :heavy_check_mark: :warning: (in development)
 
-### Tópicos 
+### Topics 
 
-:small_blue_diamond: [Descrição do projeto](#descrição-do-projeto)
+:small_blue_diamond: [Project Description](#project-description)
 
-:small_blue_diamond: [Funcionalidades](#funcionalidades)
+:small_blue_diamond: [Features](#features)
 
-:small_blue_diamond: [Deploy da Aplicação](#deploy-da-aplicação-dash)
+:small_blue_diamond: [Application Deployment](#application-deployment-dash)
 
-:small_blue_diamond: [Pré-requisitos](#pré-requisitos)
+:small_blue_diamond: [Prerequisites](#prerequisites)
 
-:small_blue_diamond: [Como rodar a aplicação](#como-rodar-a-aplicação-arrow_forward)
+:small_blue_diamond: [How to Run the Application](#how-to-run-the-application-arrow_forward)
 
 
-## Descrição do projeto 
+## Project Description 
 
 <p align="justify">
-  Guarde seus arquivos na nuvem com privacidade. O <b>File Bunker</b> criptografa cada arquivo com uma chave diferente antes de enviá-los para a nuvem! 
+  Store your files in the cloud with privacy. <b>File Bunker</b> encrypts each file with a different key before uploading them to the cloud! 
 </p>
 
-## Funcionalidades
+## Features
 
-:heavy_check_mark: Criptografia individual dos arquivos.
+:heavy_check_mark: Individual encryption of files.
 
-## Pré-requisitos
+## Prerequisites
 
 :warning: [Python](https://www.python.org/)
 
@@ -39,47 +41,44 @@
     - mega.py
     - python-dotenv
     
-## Como rodar a aplicação :arrow_forward:
+## How to Run the Application :arrow_forward:
 
-No terminal, clone o projeto: 
+In the terminal, clone the project: 
     
 ```bash
-git clone https://github.com/thiago-dev-cyber/filebunker
+  git clone https://github.com/thiago-dev-cyber/filebunker
 ```
-    
-Em seguida, navegue até o diretório do projeto:
 
-```bash   
+Then navigate to the project directory:
+
+```bash 
 cd filebunker
 ```
-     
-Instale as dependências necessárias:
 
-```bash
+Install the necessary dependencies:
+
+```bash 
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
+## Troubleshooting :exclamation:
 
+Some issues encountered during the development of this project and how they were resolved are documented in
+issues
+.
+## Open Tasks
 
+If applicable, list tasks/features that still need to be implemented in your application:
 
-## Resolvendo Problemas :exclamation:
+:memo: Finish configuring the Mega connector.
+Developers/Contributors :octocat:
 
-Em [issues]() foram registrados alguns problemas gerados durante o desenvolvimento deste projeto e como foram resolvidos. 
-
-## Tarefas em aberto
-
-Se for o caso, liste tarefas/funcionalidades que ainda precisam ser implementadas na sua aplicação:
-
-:memo: Terminar de configurar o conector  mega. 
-
-
-## Desenvolvedores/Contribuintes :octocat:
-
-| [<img src="https://img.freepik.com/premium-vector/mexican-men-avatar_7814-348.jpg?semt=ais_hybrid" width=115><br><sub> Thiago-Dev</sub>](https://github.com/thiago-dev-cyper) |   
+|
+<img src="https://img.freepik.com/premium-vector/mexican-men-avatar_7814-348.jpg?semt=ais_hybrid" width=115><br><sub> Thiago-Dev</sub> |
 | :---: |
 
-## Licença 
+## License
 
-A [MIT License]() (MIT)
+The [MIT License]() (MIT)
 
 Copyright :copyright: 2025 - File Bunker
