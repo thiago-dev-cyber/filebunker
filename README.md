@@ -70,11 +70,11 @@ issues
 
 If applicable, list tasks/features that still need to be implemented in your application:
 
-:memo: Finish configuring the Mega connector.
-Developers/Contributors :octocat:
+  - :memo: Finish configuring the Mega connector.
+ 
+## Developers/Contributors :octocat:
 
-|
-<img src="https://img.freepik.com/premium-vector/mexican-men-avatar_7814-348.jpg?semt=ais_hybrid" width=115><br><sub> Thiago-Dev</sub> |
+|<img src="https://img.freepik.com/premium-vector/mexican-men-avatar_7814-348.jpg?semt=ais_hybrid" width=115><br><sub> Thiago-Dev</sub> |
 | :---: |
 
 ## License
