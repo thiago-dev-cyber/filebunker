@@ -1,6 +1,6 @@
 <h1 align="center">File Bunker</h1> 
 
-[English version](https://github.com/thiago-dev-cyber/filebunker/blob/dev/README.md)
+[English version](https://github.com/thiago-dev-cyber/filebunker/blob/dev/.github/README.md)
 
 <p align="center">
   <img src="http://img.shields.io/static/v1?label=python&message=3.11.2&color=blue&style=for-the-badge&logo=python"/>
@@ -41,28 +41,28 @@
     - mega.py
     - python-dotenv
     
+
 ## Como rodar a aplicação :arrow_forward:
 
-No terminal, clone o projeto: 
-    
+Na URL oficial do repositório ([https://github.com/thiago-dev-cyber/filebunker](https://github.com/thiago-dev-cyber/filebunker)) Faça um fork do projeto para o seu próprio GitHub e então, no terminal, clone o projeto:
+
 ```bash
-git clone https://github.com/thiago-dev-cyber/filebunker
+git clone https://github.com/<YOUR_GITHUB_USERNAME>/filebunker.git
 ```
-    
+
 Em seguida, navegue até o diretório do projeto:
 
-```bash   
+```bash
 cd filebunker
 ```
-     
-Instale as dependências necessárias:
+
+Instale o  [uv](https://docs.astral.sh/uv/) use o pip (não recomendado) ou siga a  **documentação oficial** (ALTAMENTE RECOMENDADO) e sincronize as dependências (o uv cria e gerencia automaticamente um .venv, então você não precisa):
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+uv sync
 ```
 
-
+Agora use `uv run` para executar os comandos desejados. Eles serão executados usando o `.venv` também (por exemplo, `python3 -m pytest` ou `pytest` agora se torna `uv run pytest`)
 
 ## Resolvendo Problemas :exclamation:
 
