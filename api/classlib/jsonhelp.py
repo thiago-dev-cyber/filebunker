@@ -1,14 +1,16 @@
 import json
+import os
 import secrets
-import sys 
-import os 
-from base64 import b64encode, b64decode
+import sys
+from base64 import b64decode, b64encode
 
 from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Util.Padding import pad, unpad
 
-sys.path.append(os.environ["ROOT"])
+
+sys.path.append(os.environ['ROOT'])
+
 
 class JsonHelp:
     """
@@ -18,6 +20,7 @@ class JsonHelp:
     Attributes:
         config_file_path (str or None): The path to the encrypted configuration file.
     """
+
     config_file_path = None
 
     def __init__(self):
@@ -52,11 +55,12 @@ class JsonHelp:
             password (str): The password used for key generation.
 
         Returns:
-            tuple: A tuple containing the salt, IV, key, and the decrypted JSON data as a string.
+            tuple: A tuple containing the salt, IV, key, and the 
+            decrypted JSON data as a string.
         """
-        with open(file_path, "rb") as r:
+        with open(file_path, 'rb') as r:
             salt = r.read(16)  # The salt used for key generation.
-            iv = r.read(16)    # The IV used for AES encryption.
+            iv = r.read(16)  # The IV used for AES encryption.
             encrypted_data = b64decode(r.read())  # The encrypted data.
 
         # Generate the AES key from the password and salt.
@@ -69,7 +73,7 @@ class JsonHelp:
         # Decode the decrypted data to a string (UTF-8).
         data_decrypted = data_decrypted.decode('utf-8')
 
-        print("Decrypted data:")
+        print('Decrypted data:')
         print(data_decrypted)
         return salt, iv, key, data_decrypted
 
@@ -83,7 +87,8 @@ class JsonHelp:
             password (str): The password used for decryption.
 
         Returns:
-            tuple: The result of the decryption, including the salt, IV, key, and decrypted data.
+            tuple: The result of the decryption, including the salt, 
+            IV, key, and decrypted data.
         """
         return cls.__decrypt_json(file_path, password)
 
@@ -113,20 +118,19 @@ class JsonHelp:
         """
         # Generate salt and IV for the encryption process.
         salt = secrets.token_bytes(16)  # Salt for key generation.
-        iv = secrets.token_bytes(16)    # Initialization vector (IV).
-        
+        iv = secrets.token_bytes(16)  # Initialization vector (IV).
+
         # Derive the AES key from the password and salt.
         key = JsonHelp.__gen_aes_key_to_password(password, salt)
 
         # Set the path for the configuration file.
-        config_file_path = os.path.join(os.path.join(os.environ["ROOT"], "data"), config_file_name)
+        config_file_path = os.path.join(
+            os.path.join(os.environ['ROOT'], 'data'), config_file_name
+        )
         cls.config_file_path = config_file_path
 
         # Prepare the configuration data.
-        data = {
-            "json_path": config_file_path,
-            "paths": {}
-        }
+        data = {'json_path': config_file_path, 'paths': {}}
 
         # Convert the data to JSON and then to bytes.
         data = json.dumps(data, ensure_ascii=False).encode('utf-8')
@@ -135,9 +139,9 @@ class JsonHelp:
         encrypted_data = b64encode(cls.__encrypt_json(data, key, iv))
 
         # Write the encrypted data, salt, and IV to the file.
-        with open(config_file_path, "wb") as f:
+        with open(config_file_path, 'wb') as f:
             f.write(salt)  # Write the salt.
-            f.write(iv)    # Write the IV.
+            f.write(iv)  # Write the IV.
             f.write(encrypted_data)  # Write the encrypted data.
 
     @staticmethod
@@ -156,10 +160,11 @@ class JsonHelp:
 
 
 if __name__ == '__main__':
-
     # Decrypt the file using the specified password.
-    JsonHelp.decrypt_file(file_path='1.json', password="123456")
+    JsonHelp.decrypt_file(file_path='1.json', password='123456')
 
-    import os, inspect
+    import inspect
+    import os
+
     # Print the absolute path of the current script file.
     print(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))

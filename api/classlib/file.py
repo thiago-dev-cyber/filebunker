@@ -1,11 +1,9 @@
-import json
-
-
 class File:
     """
     Class to help manage files.
     """
-    def __init__(self, id:str=None, name:str=None, path:str=None, cksum=None):
+
+    def __init__(self, id: str = None, name: str = None, path: str = None, cksum=None):
         """
         Initialiazation object.
 
@@ -22,5 +20,4 @@ class File:
 
     @staticmethod
     def fromjson(obj):
-    	pass
-
+        pass

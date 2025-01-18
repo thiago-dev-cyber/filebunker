@@ -17,7 +17,7 @@ dependencies = [
 [dependency-groups]
 dev = ["ruff>=0.9.2"]
 
-keywords = ["CLI", "Python", "cryptography", "files", "security", "privacy"]
+keywords = ["api", "app", "cryptography", "files", "security", "privacy"]
 
 [project.urls]
 # Documentation = "https://thiago-dev-cyber.github.io/mosheh/"
@@ -31,7 +31,7 @@ Issues = "https://github.com/thiago-dev-cyber/filebunker/issues"
 
 [tool.ruff]
 line-length = 88
-exclude = [".env", ".venv"]
+exclude = [".env", ".venv", "uv.lock", ".github", "pyproject.toml"]
 fix = true
 
 [tool.ruff.format]
@@ -45,3 +45,9 @@ fixable = ["ALL"]
 [tool.ruff.lint.isort]
 case-sensitive = true
 lines-after-imports = 2
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F821"]
+"app/cli/filebunker.py" = ["E402"]
+"**/{tests,docs,tools}/*" = ["E402"]
+
