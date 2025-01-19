@@ -37,7 +37,7 @@ class ConnectMega:
 
     def upload(self, path: str, file: object = None):
         """
-        Method responsable for sending the files to the server
+        Method responsible for sending the files to the server
 
         Args:
                 path (str): File path

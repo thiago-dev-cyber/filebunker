@@ -16,8 +16,8 @@ class DataBase:
     A class that handles the saving, loading, and encryption
     of JSON data to/from a file.
 
-    This class abstracts the handling of JSON data, providing 
-    methods to save and load the data to a file, including 
+    This class abstracts the handling of JSON data, providing
+    methods to save and load the data to a file, including
     encryption and decryption functionalities.
     """
 
@@ -45,7 +45,6 @@ class DataBase:
         method responsible for persisting the information in the.
         """
         try:
-            print(self.db)
             # Re-converting the dictionary to json and serializing into bytes.
             data = json.dumps(self.db, ensure_ascii=False).encode('utf-8')
             encrypted_data = JsonHelp.encrypt_file(data, self.key, self.iv)
@@ -59,6 +58,21 @@ class DataBase:
         except Exception as err:
             print(
                 'An error occurred while saving the information to the file:\n',
-                f'{self.db["json_path"]}\nError: {err}'
+                f'{self.db["json_path"]}\nError: {err}',
             )
             traceback.format_exc()
+
+    @staticmethod
+    def load_db(file_path: str, password: str):
+        try:
+            if not os.path.exists(file_path):
+                raise NotADirectoryError(
+                    f'The file or directory at {file_path} does not existis.'
+                )
+
+            salt, iv, key, data = JsonHelp.decrypt_file(file_path, password=password)
+
+            return DataBase(json_data=data, salt=salt, iv=iv, key=key)
+
+        except Exception as err:
+            print(f'There was an error trying to load decrypt json file: {err}')

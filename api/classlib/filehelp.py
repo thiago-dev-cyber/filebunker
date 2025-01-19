@@ -7,7 +7,7 @@ from Crypto.Util.Padding import pad, unpad
 
 class FileHelp:
     """
-    A helper class for performing file-related operations such 
+    A helper class for performing file-related operations such
     as checksum generation, encryption, and decryption using AES algorithm.
     """
 
@@ -20,8 +20,8 @@ class FileHelp:
             path (str): The path to the file.
 
         Returns:
-            str: The MD5 checksum of the file in hexadecimal format. 
-            If the file does not exist or is a symbolic link, 
+            str: The MD5 checksum of the file in hexadecimal format.
+            If the file does not exist or is a symbolic link,
             an empty string is returned.
         """
         if os.path.exists(path):
@@ -46,11 +46,11 @@ class FileHelp:
 
         Args:
             key (bytes): The encryption key (must be 16, 24, or 32 bytes in length).
-            iv (bytes): The initialization vector for AES 
+            iv (bytes): The initialization vector for AES
             encryption (must be 16 bytes).
             in_filename (str): Path to the input (unencrypted) file.
             out_filename (str): Path to the output (encrypted) file.
-            chunk_size (int): The size of the chunks to be read and encrypted. 
+            chunk_size (int): The size of the chunks to be read and encrypted.
             Default is 64KB.
         """
         try:
@@ -87,11 +87,11 @@ class FileHelp:
 
         Args:
             key (bytes): The decryption key (must match the encryption key).
-            iv (bytes): The initialization vector used during 
+            iv (bytes): The initialization vector used during
             encryption (must match the IV).
             in_filename (str): Path to the input (encrypted) file.
             out_filename (str): Path to the output (decrypted) file.
-            chunk_size (int): The size of the chunks to be read 
+            chunk_size (int): The size of the chunks to be read
             and decrypted. Default is 64KB.
         """
         try:

@@ -55,7 +55,7 @@ class JsonHelp:
             password (str): The password used for key generation.
 
         Returns:
-            tuple: A tuple containing the salt, IV, key, and the 
+            tuple: A tuple containing the salt, IV, key, and the
             decrypted JSON data as a string.
         """
         with open(file_path, 'rb') as r:
@@ -73,8 +73,6 @@ class JsonHelp:
         # Decode the decrypted data to a string (UTF-8).
         data_decrypted = data_decrypted.decode('utf-8')
 
-        print('Decrypted data:')
-        print(data_decrypted)
         return salt, iv, key, data_decrypted
 
     @classmethod
@@ -87,7 +85,7 @@ class JsonHelp:
             password (str): The password used for decryption.
 
         Returns:
-            tuple: The result of the decryption, including the salt, 
+            tuple: The result of the decryption, including the salt,
             IV, key, and decrypted data.
         """
         return cls.__decrypt_json(file_path, password)
