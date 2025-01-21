@@ -121,10 +121,14 @@ class JsonHelp:
         # Derive the AES key from the password and salt.
         key = JsonHelp.__gen_aes_key_to_password(password, salt)
 
+        config_file_path = os.path.join(os.environ['ROOT'], 'data')
+
+        # Ensuring that the directory is created
+        if not os.path.exists(config_file_path):
+            os.makedirs(config_file_path, exist_ok=True)
+
         # Set the path for the configuration file.
-        config_file_path = os.path.join(
-            os.path.join(os.environ['ROOT'], 'data'), config_file_name
-        )
+        config_file_path = os.path.join(config_file_path, config_file_name)
         cls.config_file_path = config_file_path
 
         # Prepare the configuration data.
