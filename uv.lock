@@ -134,7 +134,7 @@ keywords = [
 
 [package.metadata]
 requires-dist = [
-    { name = "mega-py", specifier = ">=1.0.8" },
+    { name = "mega-py", git = "https://github.com/thiago-dev-cyber/mega.py" },
     { name = "pycryptodome", specifier = ">=3.21.0" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
 ]
@@ -188,17 +188,13 @@ wheels = [
 
 [[package]]
 name = "mega-py"
-version = "1.0.8"
-source = { registry = "https://pypi.org/simple" }
+version = "1.0.9.dev0"
+source = { git = "https://github.com/thiago-dev-cyber/mega.py#24441c0b35879077efce7ec8596d017444da64a6" }
 dependencies = [
     { name = "pathlib" },
     { name = "pycryptodome" },
     { name = "requests" },
     { name = "tenacity" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/47/0d/211ed7689526f27bc6138f611267553ff27ad539bb4529095e80dd48f21b/mega.py-1.0.8.tar.gz", hash = "sha256:0632664abda8b7e4d0bbd68460da4b331d3d7d63db9afe7d3ce6fcb4f137c1a9", size = 18608 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a3/51/44a1085a091c27ade09e122d5abdafb4b6400265081879a7c4e32973a175/mega.py-1.0.8-py2.py3-none-any.whl", hash = "sha256:863b2dd59f8e639402fef3c67778fd63895fc1b678127e7006df1544f04e737c", size = 19529 },
 ]
 
 [[package]]
@@ -424,14 +420,11 @@ wheels = [
 
 [[package]]
 name = "tenacity"
-version = "5.1.5"
+version = "9.0.0"
 source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "six" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/2d/7a/b5494aa3940974d92de47f7b57384a0eb8b56142ea47f82028c661359c6f/tenacity-5.1.5.tar.gz", hash = "sha256:e664bd94f088b17f46da33255ae33911ca6a0fe04b156d334b601a4ef66d3c5f", size = 31364 }
+sdist = { url = "https://files.pythonhosted.org/packages/cd/94/91fccdb4b8110642462e653d5dcb27e7b674742ad68efd146367da7bdb10/tenacity-9.0.0.tar.gz", hash = "sha256:807f37ca97d62aa361264d497b0e31e92b8027044942bfa756160d908320d73b", size = 47421 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/45/67/67bb1db087678bc5c6f20766cf18914dfe37b0b9d4e4c5bb87408460b75f/tenacity-5.1.5-py2.py3-none-any.whl", hash = "sha256:3a916e734559f1baa2cab965ee00061540c41db71c3bf25375b81540a19758fc", size = 34922 },
+    { url = "https://files.pythonhosted.org/packages/b6/cb/b86984bed139586d01532a587464b5805f12e397594f19f931c4c2fbfa61/tenacity-9.0.0-py3-none-any.whl", hash = "sha256:93de0c98785b27fcf659856aa9f54bfbd399e29969b0621bc7f762bd441b4539", size = 28169 },
 ]
 
 [[package]]

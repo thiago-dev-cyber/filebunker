@@ -9,7 +9,7 @@ maintainers = [{ name = "thiado-dev-cyber", email = "thiagof@tutamail.com" }]
 
 requires-python = ">=3.11"
 dependencies = [
-    "mega-py>=1.0.8",
+    "mega-py",
     "pycryptodome>=3.21.0",
     "python-dotenv>=1.0.1",
 ]
@@ -50,4 +50,7 @@ lines-after-imports = 2
 "__init__.py" = ["F821"]
 "app/cli/filebunker.py" = ["E402"]
 "**/{tests,docs,tools}/*" = ["E402"]
+
+[tool.uv.sources]
+mega-py = { git = "https://github.com/thiago-dev-cyber/mega.py" }
 
