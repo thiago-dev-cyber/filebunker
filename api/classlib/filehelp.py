@@ -1,5 +1,6 @@
 import hashlib
 import os
+from uuid import uuid4
 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
@@ -12,7 +13,20 @@ class FileHelp:
     """
 
     @staticmethod
-    def cksum(path):
+    def gen_file_id() -> str:
+        """
+        Generates a random uuid.
+
+        Args:
+            None
+
+        Returns:
+            uuid (str): random uuid
+        """
+        return str(uuid4())
+
+    @staticmethod
+    def cksum(path: str) -> str:
         """
         Computes the MD5 checksum of the given file.
 

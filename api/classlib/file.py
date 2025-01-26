@@ -18,6 +18,15 @@ class File:
         self.path = path
         self.cksum = cksum
 
+    def __repr__(self):
+        """
+        Object representation for easy viewing
+        """
+        return (
+            f'file_name: {self.name}, file_id: {self.id}, '
+            f'file_path: {self.path}, file_cksum: {self.cksum}'
+        )
+
     @staticmethod
     def fromjson(obj):
         pass

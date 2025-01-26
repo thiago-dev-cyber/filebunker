@@ -47,8 +47,6 @@ class ConnectMega:
         """
         try:
             remote_file = file.id
-            # remote_file = "asdsa1312312"
-            # folder = self.__create_directory__(file.id)
             folder = self.__create_directory__(remote_file)
 
             if folder is None:
