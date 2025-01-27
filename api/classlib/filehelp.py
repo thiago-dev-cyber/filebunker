@@ -1,5 +1,6 @@
 import hashlib
 import os
+from base64 import b64decode
 from uuid import uuid4
 
 from Crypto.Cipher import AES
@@ -69,6 +70,8 @@ class FileHelp:
         """
         try:
             # Create a new AES encryptor object with the given key, IV, and mode
+            key = b64decode(key)
+            iv = b64decode(iv)
             encryptor = AES.new(key=key, mode=AES.MODE_CBC, iv=iv)
             file_size = os.path.getsize(in_filename)
 
@@ -110,6 +113,8 @@ class FileHelp:
         """
         try:
             # Create a new AES decryptor object with the given key, IV, and mode
+            key = b64decode(key)
+            iv = b64decode(iv)
             decryptor = AES.new(key=key, mode=AES.MODE_CBC, iv=iv)
             file_size = os.path.getsize(in_filename)
 
