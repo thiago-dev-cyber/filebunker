@@ -20,6 +20,7 @@ os.environ['ROOT'] = ROOT
 from api.classlib.connect_mega import ConnectMega
 from api.classlib.manager import Manager
 from api.classlib.menu import Menu
+from api.classlib.jsonhelp import JsonHelp
 
 
 def clear_screen():
@@ -59,11 +60,13 @@ def prompt_menu(menu_text, options):
             clear_screen()
             print(menu_text)
             choice = int(input('>> '))
+            print(choice)
             if choice in options:
                 return choice
             print(f'Invalid option! Please select one of {options}.')
         except ValueError:
             print('Invalid input! Please enter a number.')
+
         except KeyboardInterrupt:
             print('\nExiting...')
             sys.exit()
@@ -76,17 +79,26 @@ def main_menu(m):
     Args:
         m (ConnectMega): The Mega connection object.
     """
-    Manager.reload_files()
+    Manager.reload_files_pool()
 
     while True:
-        choice = prompt_menu(Menu.main_menu, [1, 2, 0])
+        choice = prompt_menu(Menu.main_menu, [1, 2, 3, 0])
 
         if choice == 1:
             print('Uploading files...')
             Manager.upload_files(m)
-        elif choice == 2:
+
+        elif choice == 2: 
             print('Downloading files...')
+            sleep(5)
             Manager.download_files(m)
+
+        elif choice == 3:
+            print("Enter the new path.")
+            path = input('\n>> ')
+
+            Manager.add_path(path)
+           
         elif choice == 0:
             print('Returning to the main menu...')
             break
@@ -119,10 +131,27 @@ def configure_and_start():
     main_menu(m)
 
 
+
+def create_config_file():
+    """
+    Create a configuration file.
+    """
+    print('\nEnter the filename: ')
+    name = input('>> ')
+
+    print('Enter the file password.')
+    password = getpass('>> ')
+
+    JsonHelp.create_config_file(name, password)
+
+    print("[+] Configuration file created successfully")
+    sleep(2)
+
+
 def main():
     """Main entry point for the program."""
     # Uncomment below line to enable animation
-    animation()
+    #animation()
 
     while True:
         choice = prompt_menu(Menu.first_menu, [0, 1, 2])
@@ -130,11 +159,12 @@ def main():
         if choice == 0:
             print('Exiting the program...')
             break
+
         elif choice == 1:
             configure_and_start()
+
         elif choice == 2:
-            print('Option not implemented yet.')
-            sleep(2)
+            create_config_file()
 
 
 if __name__ == '__main__':
