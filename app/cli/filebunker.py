@@ -1,171 +1,175 @@
 import inspect
 import os
+import secrets
 import sys
-from getpass import getpass
-from time import sleep
+from base64 import b64encode
 
 from dotenv import load_dotenv
 
 
 load_dotenv()
 
+# TODO: Documentation a functions
+# TODO: Get files in cloud
+# TODO: Optimazer database
+
+
 # Get the ROOT directory
 CURRENTDIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 ROOT = os.path.dirname(os.path.dirname(CURRENTDIR))
+
+
+CRYPT_PATH = os.path.join(ROOT, 'data/encrypt')
+CLOUD_PATH = os.path.join(ROOT, 'data/cloud')
+
+if not os.path.exists(CRYPT_PATH):
+    os.makedirs(CRYPT_PATH, exist_ok=True)
+
 
 # Adding the ROOT directory to sys.path
 sys.path.append(ROOT)
 os.environ['ROOT'] = ROOT
 
-from api.classlib.connect_mega import ConnectMega
-from api.classlib.manager import Manager
-from api.classlib.menu import Menu
-from api.classlib.jsonhelp import JsonHelp
+from api.classlib.db import DataBase
+from api.classlib.filehelp import FileHelp
+
+db_path = '/home/thi/Lab/projects/filebunker/data/file.db'
+
+DB = DataBase(db_path)
 
 
-def clear_screen():
-    """Clears the terminal screen."""
-    os.system('clear || cls')
+def add_file():
+    try:
+        print("Insira o caminho do arquivo que deseja adicionar.")
+        file_path = input('>> ')
+
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"The file {file_path} not exists")
+
+        file_id = FileHelp.gen_file_id()
+        file_name = os.path.basename(file_path)
+
+        print("[+] Generate a file check Sum")
+        file_cksum = FileHelp.cksum(file_path)
+
+        file_key = b64encode(secrets.token_bytes(32)).decode('utf-8')
+        file_iv = b64encode(secrets.token_bytes(16)).decode('utf-8')
+
+        DB.insert(file_id, file_name, file_path, file_cksum, file_key, file_iv)
+
+        print("[+] Successfuly to adding a new file.")
+
+        file_out = os.path.join(CRYPT_PATH, file_id)
+
+        FileHelp.encrypt_file(file_key, file_iv, file_path, file_out)
+
+    except Exception as err:
+        print("Error: ", err)
 
 
-def animation():
-    """Displays the animated loading sequence."""
-    animations = [
-        Menu.anim_01,
-        Menu.anim_02,
-        Menu.anim_03,
-        Menu.anim_04,
-        Menu.anim_05,
-    ]
-
-    for anim in animations:
-        clear_screen()
-        print(anim)
-        sleep(1.50)
-
-
-def prompt_menu(menu_text, options):
-    """
-    Displays a menu and prompts the user for input.
-
-    Args:
-        menu_text (str): The text to display for the menu.
-        options (list[int]): List of valid options.
-
-    Returns:
-        int: The selected option.
-    """
-    while True:
-        try:
-            clear_screen()
-            print(menu_text)
-            choice = int(input('>> '))
-            print(choice)
-            if choice in options:
-                return choice
-            print(f'Invalid option! Please select one of {options}.')
-        except ValueError:
-            print('Invalid input! Please enter a number.')
-
-        except KeyboardInterrupt:
-            print('\nExiting...')
-            sys.exit()
-
-
-def main_menu(m):
-    """
-    Displays the main menu and handles file upload/download operations.
-
-    Args:
-        m (ConnectMega): The Mega connection object.
-    """
-    Manager.reload_files_pool()
-
-    while True:
-        choice = prompt_menu(Menu.main_menu, [1, 2, 3, 0])
-
-        if choice == 1:
-            print('Uploading files...')
-            Manager.upload_files(m)
-
-        elif choice == 2: 
-            print('Downloading files...')
-            sleep(5)
-            Manager.download_files(m)
-
-        elif choice == 3:
-            print("Enter the new path.")
-            path = input('\n>> ')
-
-            Manager.add_path(path)
-           
-        elif choice == 0:
-            print('Returning to the main menu...')
-            break
-
-
-def configure_and_start():
-    """
-    Prompts the user to configure and start the application.
-    """
-    print('Enter the path to the configuration file:')
-    path = input('>> ').strip()
-    print('\nEnter the password:')
-    password = getpass('>> ')
-
-    clear_screen()
-    print('Loading configuration file...')
-    sleep(1)
-
-    if not Manager.init_database(path, password):
-        print('Failed to initialize the database. Please check your inputs.')
-        sleep(2)
-        return
-
-    email = os.getenv('email')
-    password = os.getenv('password')
-
-    m = ConnectMega(email, password)
-    m.start()
-
-    main_menu(m)
+def cksum_verify(file_path, cksum):
+    new_cksum = FileHelp.cksum(file_path)
+    return new_cksum == cksum
 
 
 
-def create_config_file():
-    """
-    Create a configuration file.
-    """
-    print('\nEnter the filename: ')
-    name = input('>> ')
+def get_file():
+    try:
+        print("Insira o id ou o nome do arquivo que deseja.")
+        id = input('>> ')
 
-    print('Enter the file password.')
-    password = getpass('>> ')
+        data = DB.get_file_by_id_or_name(id=id)
 
-    JsonHelp.create_config_file(name, password)
+        # TODO: Get file in cloud
+        if data[0] not in os.listdir(CRYPT_PATH):
+            pass
 
-    print("[+] Configuration file created successfully")
-    sleep(2)
+        current = os.path.join(CRYPT_PATH, data[0])
+
+        FileHelp.decrypt_file(data[4], data[5], current, data[2])
+        print(cksum_verify(data[2], data[3]))
+
+    except Exception as err:
+        print('Erro ', err)
+
+
+
+def list_files():
+    try:
+        data = DB.fetch_all()
+        for file in data:
+            print(f"File name: {file[1]}")
+            print(f"File id: {file[0]}")
+            print(f"File path: {file[2]}")
+            print(f"File hash: {file[3]}")
+
+    except Exception as err:
+        print(f"Error {err}]")
+
 
 
 def main():
-    """Main entry point for the program."""
-    # Uncomment below line to enable animation
-    #animation()
+    config_path = '/home/user/Downloads'
+
+    print("--"*20)
+    print("\tO que deseja fazer ?")
+    print("--"*20)
+
+    print(
+        "1 - Listar arquivos. \n2 - Adicionar diretorio.",
+        "\n3 - Puxar os arquivos \n5 - Get File. \n0 - Sair"
+        )
 
     while True:
-        choice = prompt_menu(Menu.first_menu, [0, 1, 2])
+        opc = int(input("\n>> "))
 
-        if choice == 0:
-            print('Exiting the program...')
-            break
+        match opc:
+            case 1:
+                list_files()
 
-        elif choice == 1:
-            configure_and_start()
+            case 2:
+                add_file()
 
-        elif choice == 2:
-            create_config_file()
+            case 3:
+                pass
+
+            case 4:
+                pass
+
+            case 5:
+                get_file()
+
+            case 0:
+                break
+
+            case _:
+                print("Opcao invalida!")
+
+#file_key = b64encode(secrets.token_bytes(32)).decode('utf-8')
+#file_iv = b64encode(secrets.token_bytes(16)).decode('utf-8')
 
 
-if __name__ == '__main__':
-    main()
+
+
+#file_id = FileHelp.gen_file_id()
+
+#file_path = '/home/user/Downloads/historia.md'
+#file_cksum = FileHelp.cksum(file_path)
+#file_name = 'historia.md'
+
+
+#DB = DataBase(db_path)
+
+
+#DB.insert(file_id, file_name, file_path, file_cksum, file_key, file_iv)
+#result = DB.get_file_by_id_or_name(file_id, file_name)
+
+#print(result)
+#if not os.path.exists(CRYPT_PATH):
+#    os.makedirs(CRYPT_PATH, exist_ok=True)
+
+#file_out = os.path.join(CRYPT_PATH, 'adfafasfa')
+
+# FileHelp.encrypt_file(key, iv, file_path, file_out)
+# FileHelp.decrypt_file(key, iv, file_out, file_path)
+main()
