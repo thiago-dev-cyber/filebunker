@@ -1,5 +1,6 @@
 import sqlite3
 
+
 class DataBase:
     def __init__(self, db_path):
         self.db_path = db_path
@@ -83,16 +84,13 @@ class DataBase:
 	    	VALUES (?, ? , ? , ? ,? ,?)
 	    	"""
 
-            cursor.execute(
-                sql, (id, file_name, file_path, file_cksum, file_key, file_iv)
-            )
+            cursor.execute(sql, (id, file_name, file_path, file_cksum, file_key, file_iv))
 
             self.conn.commit()
 
         except sqlite3.Error as err:
             print(f'Fail to insert data {err}')
             self.conn.rollback()
-
 
     def remove_by_id_or_name(self, file_id):
         """
@@ -135,7 +133,6 @@ class DataBase:
 
         except sqlite3.Error as err:
             print(f'Failt to fetch data {err}')
-
 
     def get_file_by_id_or_name(self, id=None, file_name=None):
         """

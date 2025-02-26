@@ -1,51 +1,17 @@
-import inspect
 import os
 import secrets
-import sys
 from base64 import b64encode
 
-from dotenv import load_dotenv
+from api.classlib.filehelp import FileHelp
+from config import config
 
-
-load_dotenv()
 
 # TODO: Documentation a functions
 # TODO: Get files in cloud
 # TODO: Optimazer database
 
-
-# Get the ROOT directory
-CURRENTDIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-ROOT = os.path.dirname(os.path.dirname(CURRENTDIR))
-
-
-CRYPT_PATH = os.path.join(ROOT, 'data/encrypt')
-CLOUD_PATH = os.path.join(ROOT, 'data/cloud')
-
-# Mega
-
-EMAIL = os.getenv('email')
-PASSWORD = os.getenv('password')
-
-
-if not os.path.exists(CRYPT_PATH):
-    os.makedirs(CRYPT_PATH, exist_ok=True)
-
-
-# Adding the ROOT directory to sys.path
-sys.path.append(ROOT)
-os.environ['ROOT'] = ROOT
-
-from api.classlib.connect_mega import ConnectMega
-from api.classlib.db import DataBase
-from api.classlib.filehelp import FileHelp
-
-
-db_path = '/home/user/lab/filebunker/data/file.db'
-
-DB = DataBase(db_path)
-# DB.create_tables()
-MEGA = ConnectMega(EMAIL, PASSWORD)
+DB = config.init_database()
+MEGA = config.init_mega()
 
 
 def add_file():
@@ -76,7 +42,7 @@ def add_file():
         # Insert into database a file metadata.
         DB.insert(file_id, file_name, file_path, file_cksum, file_key, file_iv)
 
-        file_out = os.path.join(CRYPT_PATH, file_id)
+        file_out = os.path.join(config.temp_path, file_id)
         FileHelp.encrypt_file(file_key, file_iv, file_path, file_out)
 
         print('[!] Uploading files to the cloud')
@@ -103,12 +69,12 @@ def get_file():
         data = DB.get_file_by_id_or_name(id=id)
 
         # TODO: Get file in cloud
-        if data[0] not in os.listdir(CRYPT_PATH):
+        if data[0] not in os.listdir(config.temp_path):
             print('[*] Getting file in clound.')
             MEGA.start()
-            MEGA.download_file(data[0], data[0], CRYPT_PATH)
+            MEGA.download_file(data[0], data[0], config.temp_path)
 
-        current = os.path.join(CRYPT_PATH, data[0])
+        current = os.path.join(config.temp_path, data[0])
 
         FileHelp.decrypt_file(data[4], data[5], current, data[2])
         print(cksum_verify(data[2], data[3]))
@@ -150,8 +116,6 @@ def remove_file():
 
 
 def main():
-    config_path = '/home/user/Downloads'
-
     print('--' * 20)
     print('\tO que deseja fazer ?')
     print('--' * 20)

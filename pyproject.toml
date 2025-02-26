@@ -12,6 +12,7 @@ dependencies = [
     "mega-py",
     "pycryptodome>=3.21.0",
     "python-dotenv>=1.0.1",
+    "termcolor>=2.5.0",
 ]
 
 [dependency-groups]
@@ -30,7 +31,7 @@ Issues = "https://github.com/thiago-dev-cyber/filebunker/issues"
 
 
 [tool.ruff]
-line-length = 88
+line-length = 92
 exclude = [".env", ".venv", "uv.lock", ".github", "pyproject.toml"]
 fix = true
 
@@ -48,7 +49,8 @@ lines-after-imports = 2
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F821"]
-"app/cli/filebunker.py" = ["E402"]
+"filebunker.py" = ["E402"]
+"api/classlib/db.py" = ["E101"]
 "**/{tests,docs,tools}/*" = ["E402"]
 
 [tool.uv.sources]
