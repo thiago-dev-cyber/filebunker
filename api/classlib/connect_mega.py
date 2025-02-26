@@ -57,7 +57,7 @@ class ConnectMega:
             sleep(2)
 
             data = self.m.upload(file_path, folder[0])
-            print(f'File uploaded successfully: {data}')
+            # print(f'File uploaded successfully: {data}')
 
             return True
 
@@ -66,7 +66,7 @@ class ConnectMega:
             return False
 
     def download_file(self, file_id: str, file_name, destination_folder: str):
-        if os.path.exists(destination_folder):
+        if not os.path.exists(destination_folder):
             raise Exception('Destination_folder not found')
 
         file = self.m.find(file_id)
