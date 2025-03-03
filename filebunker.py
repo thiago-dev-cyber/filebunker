@@ -1,59 +1,153 @@
+# Defaults methods
 import os
 import secrets
 from base64 import b64encode
 
+# External methods
+from tabulate import tabulate
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+# Local methods
 from api.classlib.filehelp import FileHelp
 from config import config
 
-
-# TODO: Documentation a functions
-# TODO: Get files in cloud
-# TODO: Optimazer database
 
 DB = config.init_database()
 MEGA = config.init_mega()
 
 
-def add_file():
+def add_file(file_path):
+    """Adds a new file to the database and uploads it to the cloud."""
     try:
-        print('Enter the path of the file you want to add.')
-        file_path = input('>> ')
-
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f'The file {file_path} not exists')
-
-        print('[+] Generate a file id')
+        file_path = file_path
         file_id = FileHelp.gen_file_id()
         file_name = os.path.basename(file_path)
-
-        print(file_name)
-        print('[+] Generate a file check Sum')
-
+        file_size = os.path.getsize(file_path)
+        
         file_cksum = FileHelp.cksum(file_path)
 
-        # Avoid duplicate files.
-        if DB.fetch(file_name=file_name, file_cksum=file_cksum) is not None:
+        if DB.fetch(file_name=file_name, file_cksum=file_cksum):
             print('[!] The file has already been added')
+            return
 
-        # Generate a file key and file iv for encryption.
         file_key = b64encode(secrets.token_bytes(32)).decode('utf-8')
         file_iv = b64encode(secrets.token_bytes(16)).decode('utf-8')
 
-        # Insert into database a file metadata.
-        DB.insert(file_id, file_name, file_path, file_cksum, file_key, file_iv)
+        DB.insert(file_id, file_name, file_path, file_cksum, file_key, file_iv, file_size)
 
         file_out = os.path.join(config.temp_path, file_id)
         FileHelp.encrypt_file(file_key, file_iv, file_path, file_out)
 
-        print('[!] Uploading files to the cloud')
-
+        print('[!] Uploading files to the cloud...')
         MEGA.start()
-        MEGA.upload_file('pandora', file_out)
+        MEGA.upload_file('filebunker', file_out)
 
-        print('[+] Successfuly to adding a new file.')
+        print('[+] File added successfully.')
 
     except Exception as err:
+        print('Error:', err)
+
+
+def add_directory():
+    try:
+        directory_path = get_input('Enter the path of the directory you want to add: ', validate_dir_exists)
+
+        with ThreadPoolExecutor(max_workers=5) as executor:  # Limite de 5 threads
+            futures = []
+
+            for root, dirs, files in os.walk(directory_path):
+                for file_name in files:
+                    file_path = os.path.join(root, file_name)
+                    futures.append(executor.submit(add_file, file_path=file_path))
+
+            # Aguardar a execução de todas as threads
+            for future in as_completed(futures):
+                try:
+                    future.result()  # Pode lançar exceções que ocorrem na thread
+                    print("[+] Successfully processed a file.")
+                except Exception as e:
+                    print(f"[!] Error processing file: {e}")
+                    
+    except Exception as err:
+        print('Error:', err)
+
+
+# TODO: 
+def download_directory():
+    try:
+        directory_path = get_input('Enter the path of the directory ')
+    except Exception as err:
         print('Error: ', err)
+
+def get_input(prompt, validate_func=None):
+    """Helper function to get validated user input."""
+    while True:
+        user_input = input(f'{prompt}\n>> ')
+        if validate_func and not validate_func(user_input):
+            print('[!] Invalid input, please try again.')
+        else:
+            return user_input
+
+
+def validate_file_exists(file_path):
+    """Validates that the file exists."""
+    return os.path.exists(file_path)
+
+
+def validate_dir_exists(dir_path):
+    """Validates that the directory exists"""
+    return os.path.isdir(dir_path)
+
+
+#def list_files():
+    """Lists all files stored in the database."""
+#    try:
+#        data = DB.fetch_all()
+#        for file in data:
+#            print(f"\n{'--' * 20}\nFile name: {file[1]}\nFile id: {file[0]}\nFile path: {file[2]}\nFile hash: {file[3]}\n{'--' * 20}")
+#    except Exception as err:
+#        print(f'Error: {err}')
+
+def list_files():
+    """Lists all files stored in the database in a formatted table."""
+
+    while True:
+        try:
+            data = DB.fetch_all()
+            
+            # Format the data for tabulation
+            table_data = []
+            for file in data:
+                table_data.append([file[0], 
+                    file[1], 
+                    file[2], 
+                    file[3], 
+                    FileHelp.parser_bytes(int(file[6]))])
+
+            # Define column headers
+            headers = ['File ID', 'File Name', 'File Path', 'File Hash', 'File Size']
+
+            # Print the table using tabulate
+            print(tabulate(table_data, headers, tablefmt='fancy_grid'))
+
+            if not get_input("Deseja exibir mais 10 ?").lower() in ["y", "yes"]:
+                break
+
+        except Exception as err:
+            print(f'Error: {err}')
+
+
+def remove_file():
+    """Removes a file by its ID or name."""
+    try:
+        file_id = get_input('Enter the ID of the file you want to remove: ')
+        if DB.remove_by_id_or_name(file_id):
+            print('[+] File removed successfully')
+        else:
+            print('[!] Error removing file.')
+    except Exception as err:
+        print('Error:', err)
+
 
 
 def cksum_verify(file_path, cksum):
@@ -63,10 +157,9 @@ def cksum_verify(file_path, cksum):
 
 def get_file():
     try:
-        print('Insira o id ou o nome do arquivo que deseja.')
-        id = input('>> ')
+        file_id = get_input('Enter the path of file: ')
 
-        data = DB.get_file_by_id_or_name(id=id)
+        data = DB.get_file_by_id_or_name(id=file_id)
 
         # TODO: Get file in cloud
         if data[0] not in os.listdir(config.temp_path):
@@ -83,72 +176,45 @@ def get_file():
         print('Erro ', err)
 
 
-def list_files():
-    try:
-        data = DB.fetch_all()
-        for file in data:
-            print('\n')
-            print('--' * 20)
-            print(f'File name: {file[1]}')
-            print(f'File id: {file[0]}')
-            print(f'File path: {file[2]}')
-            print(f'File hash: {file[3]}')
-            print('--' * 20)
-
-    except Exception as err:
-        print(f'Error {err}]')
-
-
-def remove_file():
-    try:
-        os.system('clear')
-        print('Enter the ID of the file you want to remove.')
-
-        file_id = input('>> ')
-        if DB.remove_by_id_or_name(file_id):
-            print('[+] File removed with Successfuly')
-
-        else:
-            print('[!] Error to remove file.')
-
-    except Exception as err:
-        print('Fail: ', err)
-
 
 def main():
-    print('--' * 20)
-    print('\tO que deseja fazer ?')
-    print('--' * 20)
-
-    print(
-        '1 - Listar arquivos. \n2 - Adicionar um arquivo.',
-        '\n3 - Puxar os arquivos  \n4 - Deletar um arquivo\n5 - Get File. \n0 - Sair',
-    )
+    """Main menu and program loop."""
+    menu = '''
+    1 - List files
+    2 - Add a file
+    3 - Add directory
+    4 - Pull files (cloud sync)
+    5 - Remove a file
+    6 - Get file
+    0 - Exit
+    '''
 
     while True:
-        opc = int(input('\n>> '))
+        print(menu)
+        option = int(input('Choose an option: '))
 
-        match opc:
-            case 1:
-                list_files()
+        if option == 1:
+            list_files()
 
-            case 2:
-                add_file()
+        elif option == 2:
+            file_path = get_input('Enter the path of the file you want to add: ', validate_file_exists)
+            add_file(file_path)
+        elif option == 3:
+            add_directory() 
 
-            case 3:
-                pass
+        elif option == 4:
+            pass
 
-            case 4:
-                remove_file()
+        elif option == 5:
+            remove_file()
 
-            case 5:
-                get_file()
-
-            case 0:
-                break
-
-            case _:
-                print('Opcao invalida!')
+        elif option == 6:
+            get_file()  # Define this function if needed
+        elif option == 0:
+            break
+        else:
+            print('[!] Invalid option.')
 
 
-main()
+if __name__ == '__main__':
+    main()

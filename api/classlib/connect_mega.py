@@ -56,7 +56,7 @@ class ConnectMega:
             # Sleep to avoid any potential timing issues with Mega API
             sleep(2)
 
-            # data = self.m.upload(file_path, folder[0])
+            self.m.upload(file_path, folder[0])
             # print(f'File uploaded successfully: {data}')
 
             return True
