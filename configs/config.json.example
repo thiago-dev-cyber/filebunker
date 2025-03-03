@@ -1,19 +1,22 @@
 {
   "database": {
-    "db_name": "metadata.db",
-    "db_path": "data/metadata.db"
-  },
+    "host": "localhost",
+    "port": 3306,
+    "user": "filebunker",
+    "password": "",
+    "database": "metadata"
+},
   "services": {
     "telegram": {
-      "enabled": true,
-      "api_id": "asfasfasfasf",
-      "api_hash": "adasdasfafa",
-      "phone_number": "5540028922"
+      "enabled": false,
+      "api_id": "",
+      "api_hash": "",
+      "phone_number": ""
     },
     "mega": {
       "enabled": true,
-      "email": "naoimporta@nao.com",
-      "password": "Naoimporta123"
+      "email": "",
+      "password": ""
     }
   }
 }

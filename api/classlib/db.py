@@ -1,41 +1,63 @@
-import sqlite3
+import mysql.connector
+from mysql.connector import errorcode
+from mysql.connector import pooling
 
 
 class DataBase:
-    def __init__(self, db_path):
-        self.db_path = db_path
-        self.conn = sqlite3.connect(self.db_path)
+    def __init__(self, host, user, port, password, database):
+        self.dbconfig = {
+            "host": host,
+            "user": user,
+            "port": port,
+            "password": password,
+            "database": database
+        }
 
+        self.cnxpool = pooling.MySQLConnectionPool(
+            pool_name="connections",
+            pool_size=10,
+            **self.dbconfig
+        )
+
+        self.create_tables()
+
+    def get_connection(self):
+        return self.cnxpool.get_connection()
+        
     def create_tables(self):
         """
-        Create a tables of database.
+        Create tables in the database.
         """
-        cursor = self.conn.cursor()
-        sql = """
-        CREATE TABLE IF NOT EXISTS Files (
-            id TEXT PRIMARY KEY NOT NULL,
-            file_name TEXT NOT NULL,
-            file_path TEXT NOT NULL,
-            file_cksum TEXT NOT NULL,
-            file_key TEXT NOT NULL,
-            file_iv TEXT NOT NULL
-        )
-        """
-        cursor.execute(sql)
-        self.conn.commit()
+        conn = self.get_connection()
+        cursor = conn.cursor()
 
-    def close(self):
-        """
-        Close connection with database.
-        """
-        self.conn.close()
+        try:
+            sql = """
+            CREATE TABLE IF NOT EXISTS Files (
+                id VARCHAR(255) PRIMARY KEY,
+                file_name VARCHAR(255) NOT NULL,
+                file_path VARCHAR(255) NOT NULL,
+                file_cksum VARCHAR(255) NOT NULL,
+                file_key VARCHAR(255) NOT NULL,
+                file_iv VARCHAR(255) NOT NULL,
+                file_size VARCHAR(255) NOT NULL
+            )
+            """
+            cursor.execute(sql)
+            conn.commit()
+
+        except mysql.connector.Error as err:
+            print(f"Error creating tables: {err}")
+
+        finally:
+            conn.close()
 
     def fetch(self, id=None, file_cksum=None, file_name=None):
         """
-        Featch metadata in database
+        Fetch metadata from the database.
         """
-
-        cursor = self.conn.cursor()
+        conn = self.get_connection()
+        cursor = conn.cursor()
 
         try:
             params = []
@@ -43,15 +65,15 @@ class DataBase:
 
             if id is not None:
                 params.append(id)
-                conditions.append('id = ?')
+                conditions.append('id = %s')
 
             if file_name is not None:
                 params.append(file_name)
-                conditions.append('file_name = ?')
+                conditions.append('file_name = %s')
 
             if file_cksum is not None:
                 params.append(file_cksum)
-                conditions.append('file_cksum = ?')
+                conditions.append('file_cksum = %s')
 
             if not params or not conditions:
                 raise ValueError(
@@ -65,91 +87,94 @@ class DataBase:
             """
 
             cursor.execute(sql, tuple(params))
-
             return cursor.fetchone()
 
-        except sqlite3.Error as err:
+        except mysql.connector.Error as err:
             print(f'Fail: {err}')
+        finally:
+            conn.close()
 
-    def insert(self, id, file_name, file_path, file_cksum, file_key, file_iv):
+    def insert(self, id, file_name, file_path, file_cksum, file_key, file_iv, file_size):
         """
-        Insert a new metadata file in database.
+        Insert a new metadata file into the database.
         """
-        cursor = self.conn.cursor()
+        conn = self.get_connection()  # Use self.get_connection()
+        cursor = conn.cursor()
 
         try:
             cursor.execute('BEGIN')
             sql = """
-	    	INSERT INTO Files (id, file_name, file_path, file_cksum, file_key, file_iv)
-	    	VALUES (?, ? , ? , ? ,? ,?)
-	    	"""
+            INSERT INTO Files (id, file_name, file_path, file_cksum, file_key, file_iv, file_size)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(sql, (id, file_name, file_path, file_cksum, file_key, file_iv, file_size))
+            conn.commit()
 
-            cursor.execute(sql, (id, file_name, file_path, file_cksum, file_key, file_iv))
+        except mysql.connector.Error as err:
+            print(f'Fail to insert data: {err}')
+            conn.rollback()
 
-            self.conn.commit()
-
-        except sqlite3.Error as err:
-            print(f'Fail to insert data {err}')
-            self.conn.rollback()
+        finally:
+            conn.close()
 
     def remove_by_id_or_name(self, file_id):
         """
-        Delete file.
+        Delete a file.
         """
-        cursor = self.conn.cursor()
+        conn = self.get_connection()  # Use self.get_connection()
+        cursor = conn.cursor()
         try:
             cursor.execute('BEGIN')
-            sql = """
-            DELETE FROM Files WHERE id=?
-            """
-
+            sql = "DELETE FROM Files WHERE id=%s"
             cursor.execute(sql, (file_id,))
-
-            self.conn.commit()
-
+            conn.commit()
             return True
 
-        except sqlite3.Error as err:
-            self.conn.rollback()
-            print(f'Fail to remove register {err}')
+        except mysql.connector.Error as err:
+            conn.rollback()
+            print(f'Fail to remove record: {err}')
             return False
 
-    def fetch_all(self):
-        # TODO: adding pagination.
+        finally:
+            conn.close()
+
+    def fetch_all(self, page=1, limit=10):
         """
-        fetch all file metadata in databese.
+        Fetch all file metadata from the database.
         """
-        cursor = self.conn.cursor()
+        conn = self.get_connection()  # Use self.get_connection()
+        cursor = conn.cursor()
         try:
-            sql = """
-            SELECT * FROM Files ORDER BY file_name
+            offset = (page - 1) * limit
+
+            sql = """SELECT * 
+            FROM Files ORDER BY file_name
+            LIMIT %s OFFSET %s
             """
-
-            cursor.execute(sql)
-
+            cursor.execute(sql, (limit, offset))
+            
             result = cursor.fetchall()
-
             return result
 
-        except sqlite3.Error as err:
-            print(f'Failt to fetch data {err}')
+        except mysql.connector.Error as err:
+            print(f'Fail to fetch data: {err}')
+        finally:
+            conn.close()
 
     def get_file_by_id_or_name(self, id=None, file_name=None):
         """
-        fetch file metadata in database.
+        Fetch file metadata by id or file_name.
         """
-        cursor = self.conn.cursor()
+        conn = self.get_connection()  # Use self.get_connection()
+        cursor = conn.cursor()
 
         try:
-            sql = """
-            SELECT * FROM Files WHERE file_name=? OR id=?
-            """
-
+            sql = "SELECT * FROM Files WHERE file_name=%s OR id=%s"
             cursor.execute(sql, (file_name, id))
-
             result = cursor.fetchall()
+            return result[0] if result else None
 
-            return result[0]
-
-        except sqlite3.Error as err:
-            print(f'Fail to feat data {err}')
+        except mysql.connector.Error as err:
+            print(f'Fail to fetch data: {err}')
+        finally:
+            conn.close()
